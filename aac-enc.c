@@ -30,13 +30,10 @@
 #include "wavreader.h"
 
 void usage(const char* name) {
-	fprintf(stderr, "%s [-r bitrate] [-t aot] [-a afterburner] [-s sbr] [-v vbr] in.wav out.aac\n", name);
-	fprintf(stderr, "Supported AOTs:\n");
-	fprintf(stderr, "\t2\tAAC-LC\n");
-	fprintf(stderr, "\t5\tHE-AAC\n");
-	fprintf(stderr, "\t29\tHE-AAC v2\n");
-	fprintf(stderr, "\t23\tAAC-LD\n");
-	fprintf(stderr, "\t39\tAAC-ELD\n");
+	fprintf(stderr, "%s [-r bitrate] [-t containers] [-a afterburner] [-v vbr] in.wav out.aac\n", name);
+	fprintf(stderr, "Supported Containers:\n");
+	fprintf(stderr, "\t2\tTT_MP4_ADTS\n");
+	fprintf(stderr, "\t10\tTT_MP4_LOAS\n");
 }
 
 int main(int argc, char *argv[]) {
@@ -49,26 +46,22 @@ int main(int argc, char *argv[]) {
 	int input_size;
 	uint8_t* input_buf;
 	int16_t* convert_buf;
-	int aot = 2;
 	int afterburner = 1;
-	int eld_sbr = 0;
+	int container =2;
 	int vbr = 0;
 	HANDLE_AACENCODER handle;
 	CHANNEL_MODE mode;
 	AACENC_InfoStruct info = { 0 };
-	while ((ch = getopt(argc, argv, "r:t:a:s:v:")) != -1) {
+	while ((ch = getopt(argc, argv, "r:t:a:v:")) != -1) {
 		switch (ch) {
 		case 'r':
 			bitrate = atoi(optarg);
 			break;
 		case 't':
-			aot = atoi(optarg);
+			container = atoi(optarg);
 			break;
 		case 'a':
 			afterburner = atoi(optarg);
-			break;
-		case 's':
-			eld_sbr = atoi(optarg);
 			break;
 		case 'v':
 			vbr = atoi(optarg);
@@ -118,15 +111,9 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "Unable to open encoder\n");
 		return 1;
 	}
-	if (aacEncoder_SetParam(handle, AACENC_AOT, aot) != AACENC_OK) {
+	if (aacEncoder_SetParam(handle, AACENC_AOT,AOT_AAC_LC) != AACENC_OK) {
 		fprintf(stderr, "Unable to set the AOT\n");
 		return 1;
-	}
-	if (aot == 39 && eld_sbr) {
-		if (aacEncoder_SetParam(handle, AACENC_SBR_MODE, 1) != AACENC_OK) {
-			fprintf(stderr, "Unable to set SBR mode for ELD\n");
-			return 1;
-		}
 	}
 	if (aacEncoder_SetParam(handle, AACENC_SAMPLERATE, sample_rate) != AACENC_OK) {
 		fprintf(stderr, "Unable to set the AOT\n");
@@ -151,10 +138,17 @@ int main(int argc, char *argv[]) {
 			return 1;
 		}
 	}
-	if (aacEncoder_SetParam(handle, AACENC_TRANSMUX, TT_MP4_ADTS) != AACENC_OK) {
+	if (aacEncoder_SetParam(handle, AACENC_TRANSMUX, container) != AACENC_OK) {
 		fprintf(stderr, "Unable to set the ADTS transmux\n");
 		return 1;
 	}
+
+        if (aacEncoder_SetParam(handle, AACENC_SIGNALING_MODE, 0) != AACENC_OK) {
+		fprintf(stderr, "Unable to set the AACENC SIGNALING MODE \n");
+		return 1;
+	
+	}
+
 	if (aacEncoder_SetParam(handle, AACENC_AFTERBURNER, afterburner) != AACENC_OK) {
 		fprintf(stderr, "Unable to set the afterburner mode\n");
 		return 1;
