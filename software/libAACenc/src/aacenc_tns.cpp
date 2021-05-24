@@ -107,7 +107,7 @@ amm-info@iis.fraunhofer.de
 #include "aacEnc_rom.h"
 #include "aacenc_tns.h"
 #include "FDK_lpc.h"
-
+#undef B
 #define FILTER_DIRECTION 0 /* 0 = up, 1 = down */
 
 static const FIXP_DBL acfWindowLong[12 + 3 + 1] = {

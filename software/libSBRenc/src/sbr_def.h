@@ -241,7 +241,10 @@ amm-info@iis.fraunhofer.de
 #define EXTENSION_ID_PS_CODING 2
 
 /* Envelope coding constants */
-#define FREQ 0
+#ifndef FREQ
+#  define FREQ 0
+#endif
+
 #define TIME 1
 
 /* qmf data scaling */
