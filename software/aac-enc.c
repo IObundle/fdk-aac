@@ -50,13 +50,39 @@ int main(int argc, char *argv[]) {
 	int container =2;
 	int vbr = 0;
 	
-	infile="../../submodules/FDKAAC/software/in.wav";//original file
-	outfile="../../submodules/FDKAAC/software/encode.aac";//encode aac
+	//infile="../../submodules/FDKAAC/software/in.wav";//original file
+	//outfile="../../submodules/FDKAAC/software/encode.aac";//encode aac
 	
 	HANDLE_AACENCODER handle;
 	CHANNEL_MODE mode;
 	AACENC_InfoStruct info = { 0 };
 	
+	while ((ch = getopt(argc, argv, "r:t:a:v:")) != -1) {
+		switch (ch) {
+		case 'r':
+			bitrate = atoi(optarg);
+			break;
+		case 't':
+			container = atoi(optarg);
+			break;
+		case 'a':
+			afterburner = atoi(optarg);
+			break;
+		case 'v':
+			vbr = atoi(optarg);
+			break;
+		case '?':
+		default:
+			usage(argv[0]);
+			return 1;
+		}
+	}
+	if (argc - optind < 2) {
+		usage(argv[0]);
+		return 1;
+	}
+	infile = argv[optind];
+	outfile = argv[optind + 1];
 
 	wav = wav_read_open(infile);
 	if (!wav) {
