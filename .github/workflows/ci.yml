@@ -69,6 +69,7 @@ jobs:
     steps:
       - name: Install autotools
         run: |
+          brew install libtool
           brew install automake
       - name: Checkout sources
         uses: actions/checkout@v4
